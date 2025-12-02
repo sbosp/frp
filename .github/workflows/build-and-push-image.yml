@@ -1,4 +1,4 @@
-name: Build Image Only
+name: Build Image and Binaries
 
 on:
   release:
@@ -13,7 +13,6 @@ permissions:
   contents: read
 
 jobs:
-  # ... existing code ...
   build:
     name: Build Binaries and Upload to Release
     runs-on: ubuntu-latest
@@ -40,7 +39,7 @@ jobs:
           mkdir -p artifacts
           mv frps artifacts/
 
-      - name: Upload Release Assets
+      - name: Upload frpc Release Asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -64,4 +63,51 @@ jobs:
     name: Build Image from Dockerfile and binaries
     runs-on: ubuntu-latest
     steps:
-      # ... existing code ...
+      # environment
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: '0'
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # get image tag name
+      - name: Get Image Tag Name
+        run: |
+          if [ x${{ github.event.inputs.tag }} == x"" ]; then
+            echo "TAG_NAME=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+          else
+            echo "TAG_NAME=${{ github.event.inputs.tag }}" >> $GITHUB_ENV
+          fi
+
+      # prepare image tags
+      - name: Prepare Image Tags
+        run: |
+          echo "DOCKERFILE_FRPC_PATH=dockerfiles/Dockerfile-for-frpc" >> $GITHUB_ENV
+          echo "DOCKERFILE_FRPS_PATH=dockerfiles/Dockerfile-for-frps" >> $GITHUB_ENV
+          echo "TAG_FRPC=fatedier/frpc:${{ env.TAG_NAME }}" >> $GITHUB_ENV
+          echo "TAG_FRPS=fatedier/frps:${{ env.TAG_NAME }}" >> $GITHUB_ENV
+
+      - name: Build frpc only (no push)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./dockerfiles/Dockerfile-for-frpc
+          platforms: linux/amd64,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x
+          push: false
+          tags: |
+            ${{ env.TAG_FRPC }}
+
+      - name: Build frps only (no push)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./dockerfiles/Dockerfile-for-frps
+          platforms: linux/amd64,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x
+          push: false
+          tags: |
+            ${{ env.TAG_FRPS }}
