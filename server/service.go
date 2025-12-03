@@ -589,7 +589,10 @@ func (svr *Service) RegisterControl(ctlConn net.Conn, loginMsg *msg.Login, inter
 	authVerifier := auth.AlwaysPassVerifier
 
 	// TODO(fatedier): use SessionContext
-	ctl, err := NewControl(ctx, svr.rc, svr.pxyManager, svr.pluginManager, authVerifier, ctlConn, !internal, loginMsg, svr.cfg)
+	// Disable control connection crypto here to avoid encryption key mismatch
+	// (we already disabled auth verification). Pass false so msg dispatcher
+	// uses plain connection read/write.
+	ctl, err := NewControl(ctx, svr.rc, svr.pxyManager, svr.pluginManager, authVerifier, ctlConn, false, loginMsg, svr.cfg)
 	if err != nil {
 		xl.Warnf("create new controller error: %v", err)
 		// don't return detailed errors to client
