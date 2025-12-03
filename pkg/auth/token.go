@@ -62,33 +62,17 @@ func (auth *TokenAuthSetterVerifier) SetNewWorkConn(newWorkConnMsg *msg.NewWorkC
 }
 
 func (auth *TokenAuthSetterVerifier) VerifyLogin(m *msg.Login) error {
-	if !util.ConstantTimeEqString(util.GetAuthKey(auth.token, m.Timestamp), m.PrivilegeKey) {
-	    fmt.Println("token in login doesn't match token from configuration token: %v %s",auth.token,m.PrivilegeKey)
-// 		return fmt.Errorf("token in login doesn't match token from configuration token: %s over",auth.token)
-	}
+	// Token verification completely disabled - all clients are unconditionally accepted
+	fmt.Println("[AUTH DISABLED] VerifyLogin: accepting all clients without verification")
 	return nil
 }
 
 func (auth *TokenAuthSetterVerifier) VerifyPing(m *msg.Ping) error {
-	if !slices.Contains(auth.additionalAuthScopes, v1.AuthScopeHeartBeats) {
-		return nil
-	}
-
-	if !util.ConstantTimeEqString(util.GetAuthKey(auth.token, m.Timestamp), m.PrivilegeKey) {
-	    fmt.Println("token in heartbeat doesn't match token from configuration: %s over",m.PrivilegeKey)
-// 		return fmt.Errorf("token in heartbeat doesn't match token from configuration")
-	}
+	// Token verification completely disabled - all heartbeats are unconditionally accepted
 	return nil
 }
 
 func (auth *TokenAuthSetterVerifier) VerifyNewWorkConn(m *msg.NewWorkConn) error {
-	if !slices.Contains(auth.additionalAuthScopes, v1.AuthScopeNewWorkConns) {
-		return nil
-	}
-
-	if !util.ConstantTimeEqString(util.GetAuthKey(auth.token, m.Timestamp), m.PrivilegeKey) {
-		fmt.Println("token in NewWorkConn doesn't match token from configuration: %s over",m.PrivilegeKey)
-// 		return fmt.Errorf("token in NewWorkConn doesn't match token from configuration")
-	}
+	// Token verification completely disabled - all work connections are unconditionally accepted
 	return nil
 }

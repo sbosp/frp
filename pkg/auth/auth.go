@@ -53,12 +53,7 @@ type Verifier interface {
 }
 
 func NewAuthVerifier(cfg v1.AuthServerConfig) (authVerifier Verifier) {
-	switch cfg.Method {
-	case v1.AuthMethodToken:
-		authVerifier = NewTokenAuth(cfg.AdditionalScopes, cfg.Token)
-	case v1.AuthMethodOIDC:
-		tokenVerifier := NewTokenVerifier(cfg.OIDC)
-		authVerifier = NewOidcAuthVerifier(cfg.AdditionalScopes, tokenVerifier)
-	}
-	return authVerifier
+	// All authentication verification is disabled - return AlwaysPassVerifier unconditionally
+	fmt.Println("[AUTH DISABLED] NewAuthVerifier: returning AlwaysPassVerifier, all clients will be accepted")
+	return AlwaysPassVerifier
 }

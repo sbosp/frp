@@ -585,14 +585,8 @@ func (svr *Service) RegisterControl(ctlConn net.Conn, loginMsg *msg.Login, inter
 	xl.Infof("client login info: ip [%s] version [%s] hostname [%s] os [%s] arch [%s]",
 		ctlConn.RemoteAddr().String(), loginMsg.Version, loginMsg.Hostname, loginMsg.Os, loginMsg.Arch)
 
-	// Check auth.
+	// Check auth - token verification disabled, all clients are accepted
 	authVerifier := auth.AlwaysPassVerifier
-// 	if internal && loginMsg.ClientSpec.AlwaysAuthPass {
-// 		authVerifier = auth.AlwaysPassVerifier
-// 	}
-	if err := authVerifier.VerifyLogin(loginMsg); err != nil {
-		return err
-	}
 
 	// TODO(fatedier): use SessionContext
 	ctl, err := NewControl(ctx, svr.rc, svr.pxyManager, svr.pluginManager, authVerifier, ctlConn, !internal, loginMsg, svr.cfg)

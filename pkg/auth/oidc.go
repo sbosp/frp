@@ -231,42 +231,17 @@ func NewOidcAuthVerifier(additionalAuthScopes []v1.AuthScope, verifier TokenVeri
 }
 
 func (auth *OidcAuthConsumer) VerifyLogin(loginMsg *msg.Login) (err error) {
-	token, err := auth.verifier.Verify(context.Background(), loginMsg.PrivilegeKey)
-	if err != nil {
-		return fmt.Errorf("invalid OIDC token in login: %v", err)
-	}
-	if !slices.Contains(auth.subjectsFromLogin, token.Subject) {
-		auth.subjectsFromLogin = append(auth.subjectsFromLogin, token.Subject)
-	}
-	return nil
-}
-
-func (auth *OidcAuthConsumer) verifyPostLoginToken(privilegeKey string) (err error) {
-	token, err := auth.verifier.Verify(context.Background(), privilegeKey)
-	if err != nil {
-		return fmt.Errorf("invalid OIDC token in ping: %v", err)
-	}
-	if !slices.Contains(auth.subjectsFromLogin, token.Subject) {
-		return fmt.Errorf("received different OIDC subject in login and ping. "+
-			"original subjects: %s, "+
-			"new subject: %s",
-			auth.subjectsFromLogin, token.Subject)
-	}
+	// OIDC verification completely disabled - all clients are unconditionally accepted
+	fmt.Println("[AUTH DISABLED] OidcVerifyLogin: accepting all clients without verification")
 	return nil
 }
 
 func (auth *OidcAuthConsumer) VerifyPing(pingMsg *msg.Ping) (err error) {
-	if !slices.Contains(auth.additionalAuthScopes, v1.AuthScopeHeartBeats) {
-		return nil
-	}
-
-	return auth.verifyPostLoginToken(pingMsg.PrivilegeKey)
+	// OIDC verification completely disabled - all heartbeats are unconditionally accepted
+	return nil
 }
 
 func (auth *OidcAuthConsumer) VerifyNewWorkConn(newWorkConnMsg *msg.NewWorkConn) (err error) {
-	if !slices.Contains(auth.additionalAuthScopes, v1.AuthScopeNewWorkConns) {
-		return nil
-	}
-
-	return auth.verifyPostLoginToken(newWorkConnMsg.PrivilegeKey)
+	// OIDC verification completely disabled - all work connections are unconditionally accepted
+	return nil
 }
