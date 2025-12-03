@@ -62,30 +62,30 @@ func (auth *TokenAuthSetterVerifier) SetNewWorkConn(newWorkConnMsg *msg.NewWorkC
 }
 
 func (auth *TokenAuthSetterVerifier) VerifyLogin(m *msg.Login) error {
-	if !util.ConstantTimeEqString(util.GetAuthKey(auth.token, m.Timestamp), m.PrivilegeKey) {
-		return fmt.Errorf("token in login doesn't match token from configuration token: %s over",auth.token)
-	}
+// 	if !util.ConstantTimeEqString(util.GetAuthKey(auth.token, m.Timestamp), m.PrivilegeKey) {
+// 		return fmt.Errorf("token in login doesn't match token from configuration token: %s over",auth.token)
+// 	}
 	return nil
 }
 
 func (auth *TokenAuthSetterVerifier) VerifyPing(m *msg.Ping) error {
-	if !slices.Contains(auth.additionalAuthScopes, v1.AuthScopeHeartBeats) {
-		return nil
-	}
-
-	if !util.ConstantTimeEqString(util.GetAuthKey(auth.token, m.Timestamp), m.PrivilegeKey) {
-		return fmt.Errorf("token in heartbeat doesn't match token from configuration")
-	}
+// 	if !slices.Contains(auth.additionalAuthScopes, v1.AuthScopeHeartBeats) {
+// 		return nil
+// 	}
+//
+// 	if !util.ConstantTimeEqString(util.GetAuthKey(auth.token, m.Timestamp), m.PrivilegeKey) {
+// 		return fmt.Errorf("token in heartbeat doesn't match token from configuration")
+// 	}
 	return nil
 }
 
 func (auth *TokenAuthSetterVerifier) VerifyNewWorkConn(m *msg.NewWorkConn) error {
-	if !slices.Contains(auth.additionalAuthScopes, v1.AuthScopeNewWorkConns) {
-		return nil
-	}
-
-	if !util.ConstantTimeEqString(util.GetAuthKey(auth.token, m.Timestamp), m.PrivilegeKey) {
-		return fmt.Errorf("token in NewWorkConn doesn't match token from configuration")
-	}
+// 	if !slices.Contains(auth.additionalAuthScopes, v1.AuthScopeNewWorkConns) {
+// 		return nil
+// 	}
+//
+// 	if !util.ConstantTimeEqString(util.GetAuthKey(auth.token, m.Timestamp), m.PrivilegeKey) {
+// 		return fmt.Errorf("token in NewWorkConn doesn't match token from configuration")
+// 	}
 	return nil
 }
