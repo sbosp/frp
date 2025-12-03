@@ -582,8 +582,8 @@ func (svr *Service) RegisterControl(ctlConn net.Conn, loginMsg *msg.Login, inter
 	xl := xlog.FromContextSafe(ctx)
 	xl.AppendPrefix(loginMsg.RunID)
 	ctx = xlog.NewContext(ctx, xl)
-	xl.Infof("client login info: ip [%s] version [%s] hostname [%s] os [%s] arch [%s] PrivilegeKey [%s]",
-		ctlConn.RemoteAddr().String(), loginMsg.Version, loginMsg.Hostname, loginMsg.Os, loginMsg.Arch, loginMsg.PrivilegeKey)
+	xl.Infof("client login info: ip [%s] version [%s] hostname [%s] os [%s] arch [%s]",
+		ctlConn.RemoteAddr().String(), loginMsg.Version, loginMsg.Hostname, loginMsg.Os, loginMsg.Arch)
 
 	// Check auth.
 	authVerifier := svr.authVerifier
