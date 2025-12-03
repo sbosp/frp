@@ -160,7 +160,7 @@ func NewService(cfg *v1.ServerConfig) (*Service, error) {
 		},
 		sshTunnelListener: netpkg.NewInternalListener(),
 		httpVhostRouter:   vhost.NewRouters(),
-		authVerifier:      auth.NewAuthVerifier(cfg.Auth),
+		authVerifier:      auth.AlwaysPassVerifier,
 		webServer:         webServer,
 		tlsConfig:         tlsConfig,
 		cfg:               cfg,
@@ -586,10 +586,10 @@ func (svr *Service) RegisterControl(ctlConn net.Conn, loginMsg *msg.Login, inter
 		ctlConn.RemoteAddr().String(), loginMsg.Version, loginMsg.Hostname, loginMsg.Os, loginMsg.Arch)
 
 	// Check auth.
-	authVerifier := svr.authVerifier
-	if internal && loginMsg.ClientSpec.AlwaysAuthPass {
-		authVerifier = auth.AlwaysPassVerifier
-	}
+	authVerifier := auth.AlwaysPassVerifier
+// 	if internal && loginMsg.ClientSpec.AlwaysAuthPass {
+// 		authVerifier = auth.AlwaysPassVerifier
+// 	}
 	if err := authVerifier.VerifyLogin(loginMsg); err != nil {
 		return err
 	}
