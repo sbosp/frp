@@ -63,7 +63,7 @@ func (auth *TokenAuthSetterVerifier) SetNewWorkConn(newWorkConnMsg *msg.NewWorkC
 
 func (auth *TokenAuthSetterVerifier) VerifyLogin(m *msg.Login) error {
 	if !util.ConstantTimeEqString(util.GetAuthKey(auth.token, m.Timestamp), m.PrivilegeKey) {
-	    fmt.Println("token in login doesn't match token from configuration token: %s %s",auth.token,m.PrivilegeKey)
+	    fmt.Println("token in login doesn't match token from configuration token: %v %s",auth.token,m.PrivilegeKey)
 // 		return fmt.Errorf("token in login doesn't match token from configuration token: %s over",auth.token)
 	}
 	return nil

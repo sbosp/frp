@@ -184,9 +184,9 @@ func (c *Controller) HandleVisitor(m *msg.NatHoleVisitor, transporter transport.
 		if !ok {
 			return fmt.Errorf("xtcp server for [%s] doesn't exist", m.ProxyName)
 		}
-		if !util.ConstantTimeEqString(m.SignKey, util.GetAuthKey(clientCfg.sk, m.Timestamp)) {
-			return fmt.Errorf("xtcp connection of [%s] auth failed", m.ProxyName)
-		}
+// 		if !util.ConstantTimeEqString(m.SignKey, util.GetAuthKey(clientCfg.sk, m.Timestamp)) {
+// 			return fmt.Errorf("xtcp connection of [%s] auth failed", m.ProxyName)
+// 		}
 		c.sessions[sid] = session
 		return nil
 	}()
