@@ -24,7 +24,7 @@ import (
 	libio "github.com/fatedier/golib/io"
 
 	netpkg "github.com/fatedier/frp/pkg/util/net"
-	"github.com/fatedier/frp/pkg/util/util"
+// 	"github.com/fatedier/frp/pkg/util/util"
 )
 
 type listenerBundle struct {
