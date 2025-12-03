@@ -67,7 +67,7 @@ func (d *Dispatcher) readLoop() {
 	for {
 		m, err := ReadMsg(d.rw)
 		if err != nil {
-			log.Tracef("dispatcher readLoop exit: %v", err)
+			log.Debugf("dispatcher readLoop exit: %v", err)
 			close(d.doneCh)
 			return
 		}

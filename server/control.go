@@ -185,13 +185,24 @@ func NewControl(
 	}
 	ctl.lastPing.Store(time.Now())
 
+	// log encryption settings for diagnostics
 	if ctlConnEncrypted {
+		masked := ""
+		token := ctl.serverCfg.Auth.Token
+		if len(token) > 2 {
+			masked = token[:2] + "***" + token[len(token)-2:]
+		} else if len(token) > 0 {
+			masked = token[:1] + "***"
+		}
+		ctl.xl.Debugf("NewControl: ctlConnEncrypted=true, token_mask=%s", masked)
 		cryptoRW, err := netpkg.NewCryptoReadWriter(ctl.conn, []byte(ctl.serverCfg.Auth.Token))
 		if err != nil {
+			ctl.xl.Warnf("NewControl: NewCryptoReadWriter error: %v", err)
 			return nil, err
 		}
 		ctl.msgDispatcher = msg.NewDispatcher(cryptoRW)
 	} else {
+		ctl.xl.Debugf("NewControl: ctlConnEncrypted=false")
 		ctl.msgDispatcher = msg.NewDispatcher(ctl.conn)
 	}
 	ctl.registerMsgHandlers()
@@ -206,14 +217,24 @@ func (ctl *Control) Start() {
 		RunID:   ctl.runID,
 		Error:   "",
 	}
-	_ = msg.WriteMsg(ctl.conn, loginRespMsg)
+	if err := msg.WriteMsg(ctl.conn, loginRespMsg); err != nil {
+		ctl.xl.Warnf("Start: write LoginResp error: %v", err)
+		// still continue to start dispatcher to capture more errors
+	} else {
+		ctl.xl.Debugf("Start: LoginResp written to client")
+	}
 
 	go func() {
 		for i := 0; i < ctl.poolCount; i++ {
 			// ignore error here, that means that this control is closed
-			_ = ctl.msgDispatcher.Send(&msg.ReqWorkConn{})
+			if err := ctl.msgDispatcher.Send(&msg.ReqWorkConn{}); err != nil {
+				ctl.xl.Debugf("Start: send ReqWorkConn error: %v", err)
+				return
+			}
 		}
+		ctl.xl.Debugf("Start: initial ReqWorkConn messages sent")
 	}()
+	ctl.xl.Debugf("Start: starting worker goroutine")
 	go ctl.worker()
 }
 
