@@ -588,11 +588,16 @@ func (svr *Service) RegisterControl(ctlConn net.Conn, loginMsg *msg.Login, inter
 	// Check auth - token verification disabled, all clients are accepted
 	authVerifier := auth.AlwaysPassVerifier
 
-	// TODO(fatedier): use SessionContext
-	// Disable control connection crypto here to avoid encryption key mismatch
-	// (we already disabled auth verification). Pass false so msg dispatcher
-	// uses plain connection read/write.
-	ctl, err := NewControl(ctx, svr.rc, svr.pxyManager, svr.pluginManager, authVerifier, ctlConn, false, loginMsg, svr.cfg)
+	// Determine whether control connection should be encrypted. frpc sets
+	// ConnEncrypted to false for `ssh-tunnel` client type, so keep server
+	// behavior consistent by checking loginMsg.ClientSpec.Type.
+	ctlConnEncrypted := true
+	if loginMsg.ClientSpec.Type == "ssh-tunnel" {
+		ctlConnEncrypted = false
+	}
+
+	// Create new control with matching encryption setting.
+	ctl, err := NewControl(ctx, svr.rc, svr.pxyManager, svr.pluginManager, authVerifier, ctlConn, ctlConnEncrypted, loginMsg, svr.cfg)
 	if err != nil {
 		xl.Warnf("create new controller error: %v", err)
 		// don't return detailed errors to client
